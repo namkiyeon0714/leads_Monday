@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>리드 수집</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 32px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    label .required {
+      color: #e53e3e;
+      margin-left: 2px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 15px;
+      color: #1a1a1a;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #4f46e5;
+    }
+
+    input.error {
+      border-color: #e53e3e;
+    }
+
+    .error-msg {
+      font-size: 12px;
+      color: #e53e3e;
+      margin-top: 4px;
+      display: none;
+    }
+
+    button[type="submit"] {
+      width: 100%;
+      padding: 14px;
+      background: #4f46e5;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+
+    button[type="submit"]:hover {
+      background: #4338ca;
+    }
+
+    .success {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .success .checkmark {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .success h2 {
+      font-size: 20px;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .success p {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div id="form-section">
+      <h1>문의하기</h1>
+      <p class="subtitle">아래 정보를 입력해 주시면 빠르게 연락드리겠습니다.</p>
+
+      <form id="lead-form" novalidate>
+        <div class="field">
+          <label for="name">이름 <span class="required">*</span></label>
+          <input type="text" id="name" name="name" placeholder="홍길동" />
+          <div class="error-msg" id="name-error">이름을 입력해 주세요.</div>
+        </div>
+
+        <div class="field">
+          <label for="phone">전화번호 <span class="required">*</span></label>
+          <input type="tel" id="phone" name="phone" placeholder="010-0000-0000" />
+          <div class="error-msg" id="phone-error">올바른 전화번호를 입력해 주세요.</div>
+        </div>
+
+        <div class="field">
+          <label for="email">이메일 <span class="required">*</span></label>
+          <input type="email" id="email" name="email" placeholder="example@email.com" />
+          <div class="error-msg" id="email-error">올바른 이메일 주소를 입력해 주세요.</div>
+        </div>
+
+        <button type="submit">제출하기</button>
+      </form>
+    </div>
+
+    <div class="success" id="success-section">
+      <div class="checkmark">✅</div>
+      <h2>제출 완료!</h2>
+      <p>입력하신 정보가 접수되었습니다.<br />곧 연락드리겠습니다.</p>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('lead-form');
+
+    // 전화번호 자동 하이픈
+    document.getElementById('phone').addEventListener('input', function () {
+      let v = this.value.replace(/\D/g, '');
+      if (v.length <= 3) {
+        this.value = v;
+      } else if (v.length <= 7) {
+        this.value = v.slice(0, 3) + '-' + v.slice(3);
+      } else {
+        this.value = v.slice(0, 3) + '-' + v.slice(3, 7) + '-' + v.slice(7, 11);
+      }
+    });
+
+    function showError(inputId, errorId, show) {
+      const input = document.getElementById(inputId);
+      const error = document.getElementById(errorId);
+      if (show) {
+        input.classList.add('error');
+        error.style.display = 'block';
+      } else {
+        input.classList.remove('error');
+        error.style.display = 'none';
+      }
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+
+      const phoneRegex = /^01[0-9]-\d{3,4}-\d{4}$/;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      let valid = true;
+
+      if (!name) { showError('name', 'name-error', true); valid = false; }
+      else showError('name', 'name-error', false);
+
+      if (!phoneRegex.test(phone)) { showError('phone', 'phone-error', true); valid = false; }
+      else showError('phone', 'phone-error', false);
+
+      if (!emailRegex.test(email)) { showError('email', 'email-error', true); valid = false; }
+      else showError('email', 'email-error', false);
+
+      if (!valid) return;
+
+      // 여기서 실제 서버로 데이터를 전송하거나 Monday.com API를 호출할 수 있습니다.
+      console.log('리드 데이터:', { name, phone, email });
+
+      document.getElementById('form-section').style.display = 'none';
+      document.getElementById('success-section').style.display = 'block';
+    });
+  </script>
+</body>
+</html>
